@@ -1,0 +1,12 @@
+{
+  "name": "blockchain-checklist",
+  "version": "1.0.0",
+  "description": "Project contains files and contracts for my checklist when I take internship in Peahoki",
+  "main": "index.js",
+  "author": "thailephan",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "web3": "^1.7.3"
+  }
+}
