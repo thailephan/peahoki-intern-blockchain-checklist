@@ -13,9 +13,12 @@ const SetNameContract = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
 
 let options = {
     filter: {
-        value: [],
+        // topics: [
+        //     "0x6de6ea457fb1fa90dbd1b00042c8fa4d53ca0efed78c7da936a79a4ca5945db"
+        // ]
     },
-    fromBlock: 0
+    fromBlock: "earliest",
+    toBlock: "latest",
 };
 
 async function getName() {
@@ -28,7 +31,8 @@ async function getName() {
             console.log("Get Past Events")
             console.log("====================================")
 
-            console.log ('result', result)
+            console.log ('result', result[0].raw.topics);
+            console.log("Results length: ", result.length);
 
             console.log("====================================")
             console.log("End get Past Events")
@@ -45,7 +49,7 @@ async function getName() {
             console.log("End get Past Events")
             console.log("====================================")
         });
-    await setNewName("Paker");
+    await setNewName("Paker Ui giồi ơi");
 }
 
 async function setNewName(name) {
@@ -109,6 +113,7 @@ async function setNewName(name) {
     // Way 1
     // await HelloContract.methods.setName(name).send();
     // Way 2
+    let countConfirm = 0;
     web3.eth
     .sendSignedTransaction(signedTransaction.rawTransaction)
     .once('sending', function(payload){ 
@@ -130,7 +135,7 @@ async function setNewName(name) {
         console.log("====================================")
         console.log("Transaction: confirmation: ", confNumber, receipt, latestBlockHash)
         console.log("====================================")
-        
+        console.log("Confirms:", ++countConfirm);
         // Call to test first data receive
         SetNameContract.methods.name().call().then(newName => console.log("newName 1: ", name));
     })
