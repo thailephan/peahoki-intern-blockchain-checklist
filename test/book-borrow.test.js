@@ -46,6 +46,24 @@ describe("BookBorrow contract", function () {
     })
 
     describe("function:borrowBook - No book is borrowed", () => {
+        it("No book left to borrow", async function () {
+            const EXPECT_BORROW_BOOK_REVERT = "BookBorrowing: No book left to borrow";
+            const EXPECT_ADDR1_BOOK = 0;
+
+            const bookBorrow = await getDeployContract();
+            const [, addr1] = await getSigners();
+
+            const thirdBook = initBooks[2];
+
+            await expect(
+                bookBorrow.borrowBook(addr1.address, thirdBook.id),
+            ).to.be.revertedWith(EXPECT_BORROW_BOOK_REVERT);
+
+            expect(
+                await bookBorrow.balanceOf(addr1.address, thirdBook.id),
+            ).to.be.equal(EXPECT_ADDR1_BOOK);
+        });
+
         it("Book id < 0", async function () {
             const TEST_BOOK_ID = -1;
             const EXPECT_BORROW_BOOK_ERROR = "value out-of-bounds";
@@ -158,24 +176,6 @@ describe("BookBorrow contract", function () {
                 await bookBorrow.balanceOf(addr1.address, firstBook.id),
             ).to.be.equal(EXPECT_ADDR1_BOOK);
         });
-
-        it("No book left to borrow", async function () {
-            const EXPECT_BORROW_BOOK_REVERT = "BookBorrowing: No book left to borrow";
-            const EXPECT_ADDR1_BOOK = 0;
-
-            const bookBorrow = await getDeployContract();
-            const [, addr1] = await getSigners();
-
-            const thirdBook = initBooks[2];
-
-            await expect(
-                bookBorrow.borrowBook(addr1.address, thirdBook.id),
-            ).to.be.revertedWith(EXPECT_BORROW_BOOK_REVERT);
-
-            expect(
-                await bookBorrow.balanceOf(addr1.address, thirdBook.id),
-            ).to.be.equal(EXPECT_ADDR1_BOOK);
-        });
     });
 
     // describe("function:uri", () => {
@@ -207,10 +207,9 @@ describe("BookBorrow contract", function () {
         it("Borrower give back a book that not borrow", async function () {
            const bookBorrow = await getDeployContract();
             
-           const INPUT_ID = 1; 
-           const EXPECT_REVERT = "BorrowBook: Can return book that not borrow";
+           const EXPECT_REVERT = "BookBorrowing: Not borrow any to return";
 
-           await expect(bookBorrow.returnBookBack(INPUT_ID)).to.be.revertedWith(EXPECT_REVERT);
+          await expect(bookBorrow.returnBookBack()).to.be.revertedWith(EXPECT_REVERT);
         });
 
         it("Borrower give back a book that borrowed", async function () {
@@ -232,7 +231,7 @@ describe("BookBorrow contract", function () {
 
            expect(balanceAfterBorrowBook).to.be.equal(EXPECT_BORROW_BOOK);
 
-           const returnBookTx = await bookBorrow.connect(addr1).returnBookBack(firstBook.id);
+           const returnBookTx = await bookBorrow.connect(addr1).returnBookBack();
            await returnBookTx.wait();
 
            expect(

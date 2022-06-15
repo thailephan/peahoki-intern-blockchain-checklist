@@ -40,12 +40,12 @@ contract BookBorrow is Ownable, ERC1155 {
             size := extcodesize(_to)
         }
 
-        require(size == 0, "BookBorrowing: Not allow contract account to borrow book");
-        require(balanceOf(owner(), _id) > 0, "BookBorrowing: No book left to borrow");
-
         if(addrToBook[_to] > 0) {
             revert BorrowingBook();
         }
+
+        require(size == 0, "BookBorrowing: Not allow contract account to borrow book");
+        require(balanceOf(owner(), _id) > 0, "BookBorrowing: No book left to borrow");
 
         addrToBook[_to] = _id;
         safeTransferFrom(owner(), _to, _id, 1, "");
@@ -53,15 +53,15 @@ contract BookBorrow is Ownable, ERC1155 {
         emit BorrowingEvent(_to, _id, block.timestamp);
     }
 
-    function returnBookBack(uint256 _id) external {
+    function returnBookBack() external {
         address _from = msg.sender;
-        
-        require(addrToBook[_from] == _id, "BorrowBook: Can return book that not borrow");
 
-        safeTransferFrom(_from, owner(), _id, 1, "");
+        require(addrToBook[_from] > 0, "BookBorrowing: Not borrow any to return");
+
+        safeTransferFrom(_from, owner(), addrToBook[_from], 1, "");
         delete addrToBook[_from];
 
-        emit ReturnBackEvent(_from, _id, block.timestamp);
+        emit ReturnBackEvent(_from, addrToBook[_from], block.timestamp);
     }
 
    function getUri(uint256 _id) public view returns (string memory) {
